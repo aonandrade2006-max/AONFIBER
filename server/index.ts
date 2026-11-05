@@ -104,6 +104,8 @@ export function createServer(port = env.port) {
   })
 }
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   createServer()
 }
+
+export default app
