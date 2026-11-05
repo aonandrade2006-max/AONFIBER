@@ -1,4 +1,5 @@
-﻿import { Router } from 'express'
+﻿
+import { Router } from 'express'
 import { randomBytes } from 'node:crypto'
 import { getAdminClient } from '../lib/supabase.js'
 import { asyncRoute, HttpError, requireString } from '../lib/http.js'
@@ -10,7 +11,7 @@ import { env } from '../env.js'
 const router = Router()
 
 const GENERIC_CODE_MESSAGE =
-  'If that account number is registered, a verification code has been sent to the registered contact details.'
+  'If that account number is registered, a verification code has been generated.'
 
 function normalizeAccount(value: unknown): string {
   return requireString(value, 'Account number', { max: 40 }).toUpperCase()
@@ -32,6 +33,7 @@ router.post(
     if (!consume(`otp-request-ip:${ip}`, 8, 10 * 60_000)) {
       throw new HttpError(429, 'Too many verification requests. Please wait a few minutes.')
     }
+
     if (!consume(`otp-request-account:${accountNumber}`, 3, 10 * 60_000)) {
       throw new HttpError(
         429,
@@ -43,6 +45,7 @@ router.post(
     }
 
     const admin = getAdminClient()
+
     const { data: customer } = await admin
       .from('customers')
       .select('id, email, contact_number, subscription_status')
@@ -53,36 +56,43 @@ router.post(
     const code = generateOtp()
 
     let delivery: 'email' | 'sms' | 'not_configured' = 'not_configured'
+
     if (usable && customer) {
       const expiresAt = new Date(Date.now() + OTP_TTL_MS).toISOString()
+
       const { error } = await admin.from('customer_otp_codes').insert({
         customer_id: customer.id,
         code_hash: hashOtp(customer.id, code),
         expires_at: expiresAt,
         requested_ip: ip,
       })
+
       if (error) {
         console.error('[customer-auth] could not store code', error)
         throw new HttpError(500, 'We could not process that request. Please try again.')
       }
 
-      const text = `Your AON FIBER verification code is ${code}. It expires in 10 minutes. Never share this code.`
+      const message = `Your AON FIBER verification code is ${code}. It expires in 10 minutes. Never share this code.`
+
       if (customer.email && externalDeliveryStatus() === 'enabled') {
         const result = await deliverExternal({
           channel: 'email',
           to: customer.email,
           subject: 'AON FIBER verification code',
-          body: text,
+          body: message,
         })
+
         if (result.delivered) delivery = 'email'
       }
+
       if (delivery === 'not_configured' && externalDeliveryStatus() === 'enabled') {
         const result = await deliverExternal({
           channel: 'sms',
           to: customer.contact_number,
           subject: 'AON FIBER verification code',
-          body: text,
+          body: message,
         })
+
         if (result.delivered) delivery = 'sms'
       }
     }
@@ -94,14 +104,17 @@ router.post(
       delivery,
     }
 
-    // Local development convenience: when no email/SMS provider is configured,
-    // return the code so the flow can be tested end to end. The code is only
-    // valid for real accounts, and the response shape never changes.
-    if (env.otpDevMode && !env.isProduction) {
+    // DEMO ONLY: expose the code in the response for demonstration.
+    if (
+      env.otpDevMode &&
+      (!env.isProduction || process.env.OTP_DEMO_MODE === 'true') &&
+      usable
+    ) {
       payload.devCode = code
       payload.devNotice =
-        'Development mode: no email/SMS provider is configured, so the code is shown here and in the API console.'
-      if (usable) console.log(`[customer-auth] OTP for ${accountNumber}: ${code}`)
+        'Demo mode: this code is displayed for testing and is not sent by SMS or email.'
+
+      console.log(`[customer-auth] Demo OTP generated for ${accountNumber}`)
     }
 
     res.json(payload)
@@ -127,6 +140,7 @@ router.post(
     if (!/^\d{6}$/.test(code)) throw genericFailure
 
     const admin = getAdminClient()
+
     const { data: customer } = await admin
       .from('customers')
       .select('id, account_number, full_name, email, auth_user_id, subscription_status')
@@ -152,6 +166,7 @@ router.post(
         .from('customer_otp_codes')
         .update({ used_at: new Date().toISOString() })
         .eq('id', otp.id)
+
       throw new HttpError(429, 'Too many incorrect codes. Please request a new verification code.')
     }
 
@@ -160,6 +175,7 @@ router.post(
         .from('customer_otp_codes')
         .update({ attempts: otp.attempts + 1 })
         .eq('id', otp.id)
+
       throw genericFailure
     }
 
@@ -173,23 +189,31 @@ router.post(
 
     if (!authUserId) {
       const syntheticEmail = `cust-${customer.account_number.toLowerCase()}@customers.aonfiber.ph`
+
       const { data: created, error: createError } = await admin.auth.admin.createUser({
         email: syntheticEmail,
         password: randomBytes(24).toString('base64url'),
         email_confirm: true,
-        user_metadata: { customer_id: customer.id, account_number: customer.account_number },
+        user_metadata: {
+          customer_id: customer.id,
+          account_number: customer.account_number,
+        },
         app_metadata: { role: 'customer' },
       })
+
       if (createError || !created.user) {
         console.error('[customer-auth] could not provision auth user', createError)
         throw new HttpError(500, 'We could not complete sign in. Please contact your branch.')
       }
+
       authUserId = created.user.id
       email = created.user.email ?? syntheticEmail
+
       const { error: linkError } = await admin
         .from('customers')
         .update({ auth_user_id: authUserId })
         .eq('id', customer.id)
+
       if (linkError) {
         console.error('[customer-auth] could not link auth user', linkError)
         throw new HttpError(500, 'We could not complete sign in. Please contact your branch.')
@@ -199,7 +223,9 @@ router.post(
       email = userData.user?.email ?? null
     }
 
-    if (!email) throw new HttpError(500, 'We could not complete sign in. Please contact your branch.')
+    if (!email) {
+      throw new HttpError(500, 'We could not complete sign in. Please contact your branch.')
+    }
 
     const { data: link, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink',

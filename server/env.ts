@@ -1,4 +1,5 @@
-﻿import 'dotenv/config'
+﻿
+import 'dotenv/config'
 
 function first(...values: Array<string | undefined>): string {
   for (const value of values) {
@@ -14,9 +15,12 @@ export const env = {
   serviceRoleKey: first(process.env.SUPABASE_SERVICE_ROLE_KEY),
   appOrigin: first(process.env.APP_ORIGIN, 'http://localhost:5173'),
   otpPepper: first(process.env.OTP_PEPPER, 'local-development-pepper'),
+
   otpDevMode:
+    process.env.OTP_DEMO_MODE === 'true' ||
     process.env.OTP_DEV_MODE === 'true' ||
     (process.env.OTP_DEV_MODE !== 'false' && process.env.NODE_ENV !== 'production'),
+
   notifyWebhookUrl: first(process.env.NOTIFY_WEBHOOK_URL),
   presenceTimeoutMs: Number(process.env.PRESENCE_TIMEOUT_MS ?? 120_000),
   isProduction: process.env.NODE_ENV === 'production',
