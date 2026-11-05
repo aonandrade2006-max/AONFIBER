@@ -1,6 +1,6 @@
-import { Router } from 'express'
+﻿import { Router } from 'express'
 import { randomBytes } from 'node:crypto'
-import { getAdminClient } from '../lib/supabase'
+import { getAdminClient } from '../lib/supabase.js'
 import {
   asyncRoute,
   describeDatabaseError,
@@ -9,10 +9,10 @@ import {
   optionalString,
   requirePhone,
   requireString,
-} from '../lib/http'
-import { assertBranchScope, getStaff, requireRole, requireStaff } from '../lib/auth'
-import { generateTempPassword } from '../lib/passwords'
-import { env } from '../env'
+} from '../lib/http.js'
+import { assertBranchScope, getStaff, requireRole, requireStaff } from '../lib/auth.js'
+import { generateTempPassword } from '../lib/passwords.js'
+import { env } from '../env.js'
 
 const router = Router()
 
@@ -631,10 +631,10 @@ router.get(
         role: profile.role,
         status: profile.status,
         branchId: profile.branch_id,
-        branchName: (branches ?? []).find((b) => b.id === profile.branch_id)?.name ?? '—',
+        branchName: (branches ?? []).find((b) => b.id === profile.branch_id)?.name ?? 'â€”',
         branchLocation: (() => {
           const branch = (branches ?? []).find((b) => b.id === profile.branch_id)
-          return branch ? `${branch.city}, ${branch.province}` : '—'
+          return branch ? `${branch.city}, ${branch.province}` : 'â€”'
         })(),
         online,
         lastLoginAt: row?.last_login_at ?? profile.last_login_at ?? null,

@@ -1,7 +1,7 @@
-import { Router } from 'express'
-import { getAdminClient } from '../lib/supabase'
-import { asyncRoute, HttpError, optionalEmail, optionalString, requirePhone, requireString } from '../lib/http'
-import { consume } from '../lib/rateLimit'
+﻿import { Router } from 'express'
+import { getAdminClient } from '../lib/supabase.js'
+import { asyncRoute, HttpError, optionalEmail, optionalString, requirePhone, requireString } from '../lib/http.js'
+import { consume } from '../lib/rateLimit.js'
 
 const router = Router()
 

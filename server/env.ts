@@ -1,4 +1,4 @@
-import 'dotenv/config'
+﻿import 'dotenv/config'
 
 function first(...values: Array<string | undefined>): string {
   for (const value of values) {

@@ -1,4 +1,4 @@
-import { randomInt } from 'node:crypto'
+﻿import { randomInt } from 'node:crypto'
 
 /** Readable fallback password for staff account creation and password reset.
 

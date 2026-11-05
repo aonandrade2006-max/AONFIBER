@@ -1,5 +1,5 @@
-import { createHmac, randomInt, timingSafeEqual } from 'node:crypto'
-import { env } from '../env'
+﻿import { createHmac, randomInt, timingSafeEqual } from 'node:crypto'
+import { env } from '../env.js'
 
 export const OTP_TTL_MS = 10 * 60 * 1000
 export const OTP_MAX_ATTEMPTS = 5

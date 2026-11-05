@@ -1,4 +1,4 @@
-type Bucket = { hits: number[]; }
+﻿type Bucket = { hits: number[]; }
 const buckets = new Map<string, Bucket>()
 
 let lastSweep = Date.now()

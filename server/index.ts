@@ -1,15 +1,15 @@
-import express, { type NextFunction, type Request, type Response } from 'express'
+﻿import express, { type NextFunction, type Request, type Response } from 'express'
 import cors from 'cors'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { env, supabaseConfigured } from './env'
-import { HttpError } from './lib/http'
-import publicRoutes from './routes/public'
-import customerAuthRoutes from './routes/customerAuth'
-import staffRoutes from './routes/staff'
-import adminRoutes from './routes/admin'
+import { env, supabaseConfigured } from './env.js'
+import { HttpError } from './lib/http.js'
+import publicRoutes from './routes/public.js'
+import customerAuthRoutes from './routes/customerAuth.js'
+import staffRoutes from './routes/staff.js'
+import adminRoutes from './routes/admin.js'
 
 const app = express()
 
@@ -91,8 +91,8 @@ export function createServer(port = env.port) {
     console.log(`\nAON FIBER API listening on http://localhost:${port}`)
     if (!supabaseConfigured) {
       console.warn(
-        '⚠  Supabase is not configured yet. Copy .env.example to .env and add your project keys.\n' +
-          '   See README.md → "Supabase setup".',
+        'âš   Supabase is not configured yet. Copy .env.example to .env and add your project keys.\n' +
+          '   See README.md â†’ "Supabase setup".',
       )
     }
     if (env.otpDevMode && !env.isProduction) {

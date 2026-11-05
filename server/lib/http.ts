@@ -1,4 +1,4 @@
-import type { NextFunction, Request, RequestHandler, Response } from 'express'
+﻿import type { NextFunction, Request, RequestHandler, Response } from 'express'
 
 export class HttpError extends Error {
   status: number

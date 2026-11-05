@@ -1,5 +1,5 @@
-import { Router } from 'express'
-import { getAdminClient } from '../lib/supabase'
+﻿import { Router } from 'express'
+import { getAdminClient } from '../lib/supabase.js'
 import {
   asyncRoute,
   HttpError,
@@ -8,9 +8,9 @@ import {
   requireNumber,
   requirePhone,
   requireString,
-} from '../lib/http'
-import { getStaff, requireRole, requireStaff } from '../lib/auth'
-import { generateTempPassword } from '../lib/passwords'
+} from '../lib/http.js'
+import { getStaff, requireRole, requireStaff } from '../lib/auth.js'
+import { generateTempPassword } from '../lib/passwords.js'
 
 const router = Router()
 

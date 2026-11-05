@@ -1,6 +1,6 @@
-import type { NextFunction, Request, Response } from 'express'
-import { getAdminClient, getAuthUser } from './supabase'
-import { HttpError } from './http'
+﻿import type { NextFunction, Request, Response } from 'express'
+import { getAdminClient, getAuthUser } from './supabase.js'
+import { HttpError } from './http.js'
 
 export type StaffRole = 'admin' | 'branch_manager' | 'employee'
 

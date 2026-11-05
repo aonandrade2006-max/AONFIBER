@@ -1,11 +1,11 @@
-import { Router } from 'express'
+﻿import { Router } from 'express'
 import { randomBytes } from 'node:crypto'
-import { getAdminClient } from '../lib/supabase'
-import { asyncRoute, HttpError, requireString } from '../lib/http'
-import { consume, retryAfterSeconds } from '../lib/rateLimit'
-import { generateOtp, hashOtp, OTP_MAX_ATTEMPTS, OTP_TTL_MS, otpMatches } from '../lib/otp'
-import { deliverExternal, externalDeliveryStatus } from '../lib/externalNotify'
-import { env } from '../env'
+import { getAdminClient } from '../lib/supabase.js'
+import { asyncRoute, HttpError, requireString } from '../lib/http.js'
+import { consume, retryAfterSeconds } from '../lib/rateLimit.js'
+import { generateOtp, hashOtp, OTP_MAX_ATTEMPTS, OTP_TTL_MS, otpMatches } from '../lib/otp.js'
+import { deliverExternal, externalDeliveryStatus } from '../lib/externalNotify.js'
+import { env } from '../env.js'
 
 const router = Router()
 
